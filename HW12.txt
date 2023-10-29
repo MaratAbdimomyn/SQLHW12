@@ -1,0 +1,118 @@
+CREATE TABLE users (
+id_user integer PRIMARY KEY,
+id_group integer NOT NULL,
+user_fname varchar(32) NOT NULL,
+user_lname varchar(32) NOT NULL,
+user_pwd varchar(32) NOT NULL,
+user_email varchar(32) NOT NULL,
+new_email varchar(32) NULL
+)
+
+***
+
+INSERT INTO users (id_user, id_group, user_fname, user_lname, user_pwd, user_email, new_email)
+VALUES ('1', '1', 'Marat', 'Abdimomyn', '123', '22024082@bk.ru', NULL);
+
+INSERT INTO users (id_user, id_group, user_fname, user_lname, user_pwd, user_email, new_email)
+VALUES ('2', '1', 'Max', 'Verstappen', '33', 'mxone@bk.ru', NULL);
+
+***
+
+CREATE FUNCTION new_mail() RETURNS trigger AS $nmail$
+	BEGIN
+  		NEW.new_email = CONCAT(NEW.user_fname, '@project.kz');
+  	RETURN NEW;
+ 	END;
+$nmail$ LANGUAGE plpgsql;
+
+CREATE TRIGGER nmail
+BEFORE INSERT ON users
+FOR EACH ROW EXECUTE PROCEDURE new_mail();
+
+***
+
+INSERT INTO users (id_user, id_group, user_fname, user_lname, user_pwd, user_email, new_email)
+VALUES ('3', '1', 'Lando', 'Norris', '4', 'mxone@bk.ru', NULL);
+
+INSERT INTO users (id_user, id_group, user_fname, user_lname, user_pwd, user_email, new_email)
+VALUES ('2', '1', 'Max', 'Verstappen', '33', 'mxone@bk.ru', NULL);
+
+***
+
+SELECT * FROM users
+
+***
+
+CREATE FUNCTION old_user() RETURNS trigger AS $olduser$
+	BEGIN
+  		NEW.id_user = OLD.id_user;
+  	RETURN NEW;
+		NEW.id_user = NEW.id_user;
+	RETURN null;
+ 	END;
+$olduser$ LANGUAGE plpgsql;
+
+CREATE TRIGGER olduser
+BEFORE INSERT OR UPDATE ON users
+FOR EACH ROW EXECUTE PROCEDURE old_user();
+
+***
+
+UPDATE users SET id_user = 6 WHERE id_user = 1
+
+UPDATE users SET user_fname = 'Lando', user_lname = 'Norris', user_pwd = '4' WHERE id_user = 3
+
+UPDATE users SET user_fname = 'George', user_lname = 'Russel', user_pwd = '63' WHERE id_user = 1
+UPDATE users SET id_user = 6 WHERE id_user = 3
+
+***
+
+CREATE FUNCTION new_mail3() RETURNS trigger AS $nmail3$
+	BEGIN
+  		NEW.new_email = CONCAT(NEW.user_fname, '@project.kz');
+  	RETURN NEW;
+ 	END;
+$nmail3$ LANGUAGE plpgsql;
+
+CREATE TRIGGER nmail3
+BEFORE INSERT OR UPDATE ON users
+FOR EACH ROW EXECUTE PROCEDURE new_mail3();
+
+***
+
+CREATE FUNCTION old_user() RETURNS trigger AS $olduser$
+	BEGIN
+  		IF(NEW.id_user = OLD.id_user)
+  			RETURN NEW;
+		ELSE
+			RETURN null;
+		END IF;
+ 	END;
+$olduser$ LANGUAGE plpgsql;
+
+CREATE TRIGGER olduser
+BEFORE INSERT OR UPDATE ON users
+FOR EACH ROW EXECUTE PROCEDURE old_user();
+
+***
+
+CREATE FUNCTION old_name() RETURNS trigger AS $oldname$
+	BEGIN
+  		NEW.user_fname = OLD.user_fname;
+  	RETURN NEW;
+		NEW.user_fname = NEW.user_fname;
+	RETURN null;
+ 	END;
+$oldname$ LANGUAGE plpgsql;
+
+CREATE TRIGGER oldname
+BEFORE INSERT OR UPDATE ON users
+FOR EACH ROW EXECUTE PROCEDURE old_name();
+
+***
+
+UPDATE users SET user_lname = 'Sergio' WHERE id_user = 3
+
+
+INSERT INTO users (id_user, id_group, user_fname, user_lname, user_pwd, user_email, new_email)
+VALUES ('4', '1', 'Lance', 'Stroll', '18', 'mxone@bk.ru', NULL);
